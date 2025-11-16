@@ -54,7 +54,10 @@ public class Recurso {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Recurso otro)) return false;
+        if (!(obj instanceof Recurso)) {
+            return false;
+        }
+        Recurso otro = (Recurso) obj;
         return tipo.equalsIgnoreCase(otro.tipo) && descripcion.equalsIgnoreCase(otro.descripcion);
     }
 }
