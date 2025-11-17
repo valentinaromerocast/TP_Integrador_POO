@@ -134,7 +134,7 @@ public class ControladorEventos {
         try {
             List<String> lineas = eventos.stream()
                     .map(Evento::aLinea)
-                    .collect(Collectors.toList());
+                    .toList();
             Files.write(archivoDatos, lineas);
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo guardar el archivo de eventos", e);
