@@ -2,9 +2,7 @@
 
 Aplicación de escritorio desarrollada únicamente con los contenidos vistos en la materia de Programación Orientada a Objetos (Java, Swing, colecciones, archivos de texto, hilos, excepciones, patrones GRASP/SOLID). Permite planificar eventos de distinto tamaño, gestionando asistentes, recursos y un calendario visual.
 
-## Estructura (4‑6 clases)
-
-```
+## Estructura
 src/
  └─ eventos/
      ├─ modelo/
@@ -42,4 +40,3 @@ Al primer inicio se creará automáticamente `data/eventos.txt` si no existe.
 
 ## Archivo de datos
 
-El formato es plano y auto-explicativo (campos separados por `|`, listas por `;` y atributos por `^`). Se puede editar manualmente si se respetan los separadores, o simplemente trabajar desde la interfaz gráfica.
