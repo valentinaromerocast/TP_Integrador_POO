@@ -4,7 +4,6 @@ import eventos.modelo.Asistente;
 import eventos.modelo.Evento;
 import eventos.modelo.Recurso;
 import eventos.controlador.ControladorEventos;
-import eventos.controlador.NotificadorEventos;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -42,7 +41,6 @@ public class VentanaEventos extends JFrame {
     private final JTable tablaCalendario;
     private final JLabel etiquetaMesCalendario;
     private LocalDate mesVisible;
-    private Thread hiloNotificador;
 
     public VentanaEventos() {
         super("Planificador de eventos");
@@ -67,7 +65,6 @@ public class VentanaEventos extends JFrame {
 
         construirVentana();
         cargarEventos();
-        iniciarNotificador();
     }
 
     private void construirVentana() {
@@ -87,10 +84,6 @@ public class VentanaEventos extends JFrame {
         panel.add(new JLabel("Eventos (ordenados por fecha)"), BorderLayout.NORTH);
         panel.add(new JScrollPane(listaEventos), BorderLayout.CENTER);
         panel.setPreferredSize(new Dimension(300, 500));
-
-        JButton btnInforme = new JButton("Ver informe de participación");
-        btnInforme.addActionListener(e -> mostrarInforme());
-        panel.add(btnInforme, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -359,21 +352,6 @@ public class VentanaEventos extends JFrame {
         }
     }
 
-    private void mostrarInforme() {
-        String informe = controladorEventos.generarInformeParticipacion();
-        JTextArea area = new JTextArea(informe, 20, 40);
-        area.setEditable(false);
-        JOptionPane.showMessageDialog(this, new JScrollPane(area), "Informe", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void iniciarNotificador() {
-        NotificadorEventos notificador = new NotificadorEventos(controladorEventos,
-                Path.of("data", "notificaciones.txt"),
-                5000); // cada 5 segundos
-        hiloNotificador = new Thread(notificador);
-        hiloNotificador.setDaemon(true);
-        hiloNotificador.start();
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new VentanaEventos().setVisible(true));

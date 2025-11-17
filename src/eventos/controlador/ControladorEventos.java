@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -35,20 +34,6 @@ public class ControladorEventos {
     public List<Evento> obtenerEventosOrdenados() {
         return eventos.stream()
                 .sorted(Comparator.comparing(Evento::getFechaHora))
-                .collect(Collectors.toList());
-    }
-
-    public List<Evento> eventosProximos() {
-        LocalDateTime ahora = LocalDateTime.now();
-        return obtenerEventosOrdenados().stream()
-                .filter(e -> !e.getFechaHora().isBefore(ahora))
-                .collect(Collectors.toList());
-    }
-
-    public List<Evento> eventosPasados() {
-        LocalDateTime ahora = LocalDateTime.now();
-        return obtenerEventosOrdenados().stream()
-                .filter(e -> e.getFechaHora().isBefore(ahora))
                 .collect(Collectors.toList());
     }
 
@@ -91,21 +76,6 @@ public class ControladorEventos {
                 .orElseThrow(() -> new IllegalArgumentException("Evento inexistente"));
         evento.agregarRecurso(recurso);
         guardar();
-    }
-
-    public String generarInformeParticipacion() {
-        StringBuilder builder = new StringBuilder("INFORME DE PARTICIPACIÓN\n");
-        for (Evento evento : obtenerEventosOrdenados()) {
-            builder.append("- ").append(evento.resumenParticipacion()).append("\n");
-            evento.getAsistentes().stream()
-                    .filter(a -> !a.getRetroalimentacion().isBlank())
-                    .forEach(a -> builder.append("    * ")
-                            .append(a.getNombre())
-                            .append(": ")
-                            .append(a.getRetroalimentacion())
-                            .append("\n"));
-        }
-        return builder.toString();
     }
 
     public Optional<Evento> buscarPorId(String id) {

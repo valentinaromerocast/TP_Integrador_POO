@@ -1,6 +1,6 @@
 # Planificador de eventos (TP POO)
 
-Aplicación de escritorio desarrollada únicamente con los contenidos vistos en la materia de Programación Orientada a Objetos (Java, Swing, colecciones, archivos de texto, hilos, excepciones, patrones GRASP/SOLID). Permite planificar eventos de distinto tamaño, gestionando asistentes, recursos y un calendario visual, además de emitir notificaciones e informes de participación.
+Aplicación de escritorio desarrollada únicamente con los contenidos vistos en la materia de Programación Orientada a Objetos (Java, Swing, colecciones, archivos de texto, hilos, excepciones, patrones GRASP/SOLID). Permite planificar eventos de distinto tamaño, gestionando asistentes, recursos y un calendario visual.
 
 ## Estructura (4‑6 clases)
 
@@ -13,12 +13,10 @@ src/
      │   └─ Recurso.java       // recursos con Set para evitar duplicados
      ├─ controlador/
      │   ├─ ControladorEventos.java // lógica + persistencia en data/eventos.txt (List/Map/ordenamiento)
-     │   └─ NotificadorEventos.java // hilo que genera recordatorios en data/notificaciones.txt
      └─ vista/
          └─ VentanaEventos.java // interfaz Swing, calendario y formularios
 data/
- ├─ eventos.txt         // base en texto (puede quedar vacía)
- └─ notificaciones.txt  // se genera al iniciar
+ └─ eventos.txt         // base en texto (puede quedar vacía)
 ```
 
 ## Funcionalidad destacada
@@ -40,7 +38,7 @@ javac -d out $(find src -name '*.java')
 java -cp out eventos.vista.VentanaEventos
 ```
 
-Al primer inicio se crearán automáticamente `data/eventos.txt` y `data/notificaciones.txt` si no existen.
+Al primer inicio se creará automáticamente `data/eventos.txt` si no existe.
 
 ## Archivo de datos
 
