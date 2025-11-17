@@ -26,8 +26,6 @@ data/
 - Registro, edición y visualización de eventos (lista y detalle).
 - Formularios para asistentes y recursos asociados a cada evento.
 - Calendario mensual gráfico basado en `Map<LocalDate, List<Evento>>`.
-- Notificaciones automáticas en un hilo separado para eventos que ocurren en las próximas 24 h.
-- Informe de participación con feedback recopilado.
 - Persistencia total en archivos de texto, sin bases de datos ni librerías externas.
 
 ## Requisitos previos
