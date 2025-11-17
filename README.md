@@ -11,11 +11,11 @@ src/
      │   ├─ Evento.java        // entidad principal, sobrecarga de constructores
      │   ├─ Asistente.java     // registro de asistentes y feedback
      │   └─ Recurso.java       // recursos con Set para evitar duplicados
-     ├─ servicio/
-     │   ├─ GestorEventos.java // lógica + persistencia en data/eventos.txt (List/Map/ordenamiento)
-     │   └─ Notificador.java   // hilo que genera recordatorios en data/notificaciones.txt
-     └─ ui/
-         └─ AplicacionEventos.java // interfaz Swing, calendario y formularios
+     ├─ controlador/
+     │   ├─ ControladorEventos.java // lógica + persistencia en data/eventos.txt (List/Map/ordenamiento)
+     │   └─ NotificadorEventos.java // hilo que genera recordatorios en data/notificaciones.txt
+     └─ vista/
+         └─ VentanaEventos.java // interfaz Swing, calendario y formularios
 data/
  ├─ eventos.txt         // base en texto (puede quedar vacía)
  └─ notificaciones.txt  // se genera al iniciar
@@ -38,8 +38,8 @@ data/
 
 ```bash
 cd /workspace
-javac $(find src -name '*.java')
-java -cp src eventos.ui.AplicacionEventos
+javac -d out $(find src -name '*.java')
+java -cp out eventos.vista.VentanaEventos
 ```
 
 Al primer inicio se crearán automáticamente `data/eventos.txt` y `data/notificaciones.txt` si no existen.

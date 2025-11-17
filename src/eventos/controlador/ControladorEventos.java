@@ -1,4 +1,4 @@
-package eventos.servicio;
+package eventos.controlador;
 
 import eventos.modelo.Asistente;
 import eventos.modelo.Evento;
@@ -18,15 +18,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Aplica los principios GRASP (experto de la información) y SOLID (Single Responsibility)
- * centralizando la lógica de negocio y la persistencia básica basada en archivos de texto.
+ * Actúa como Controlador en la arquitectura MVC aplicando los principios GRASP/SOLID.
+ * Contiene la lógica de negocio y la persistencia en archivos de texto.
  */
-public class GestorEventos {
+public class ControladorEventos {
 
     private final Path archivoDatos;
     private final List<Evento> eventos;
 
-    public GestorEventos(Path archivoDatos) {
+    public ControladorEventos(Path archivoDatos) {
         this.archivoDatos = archivoDatos;
         this.eventos = new ArrayList<>();
         cargar();

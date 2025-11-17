@@ -1,10 +1,10 @@
-package eventos.ui;
+package eventos.vista;
 
 import eventos.modelo.Asistente;
 import eventos.modelo.Evento;
 import eventos.modelo.Recurso;
-import eventos.servicio.GestorEventos;
-import eventos.servicio.Notificador;
+import eventos.controlador.ControladorEventos;
+import eventos.controlador.NotificadorEventos;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Interfaz principal basada en Swing.
+ * Vista Swing que materializa la capa de presentación del MVC.
  */
-public class AplicacionEventos extends JFrame {
+public class VentanaEventos extends JFrame {
 
-    private final GestorEventos gestorEventos;
+    private final ControladorEventos controladorEventos;
     private final DefaultListModel<Evento> modeloEventos;
     private final JList<Evento> listaEventos;
     private final JTextArea areaDetalle;
@@ -44,9 +44,9 @@ public class AplicacionEventos extends JFrame {
     private LocalDate mesVisible;
     private Thread hiloNotificador;
 
-    public AplicacionEventos() {
+    public VentanaEventos() {
         super("Planificador de eventos");
-        this.gestorEventos = new GestorEventos(Path.of("data", "eventos.txt"));
+        this.controladorEventos = new ControladorEventos(Path.of("data", "eventos.txt"));
         this.modeloEventos = new DefaultListModel<>();
         this.listaEventos = new JList<>(modeloEventos);
         this.areaDetalle = new JTextArea(12, 30);
@@ -194,7 +194,7 @@ public class AplicacionEventos extends JFrame {
 
     private void cargarEventos() {
         modeloEventos.clear();
-        for (Evento evento : gestorEventos.obtenerEventosOrdenados()) {
+        for (Evento evento : controladorEventos.obtenerEventosOrdenados()) {
             modeloEventos.addElement(evento);
         }
         if (!modeloEventos.isEmpty()) {
@@ -253,13 +253,13 @@ public class AplicacionEventos extends JFrame {
                         campoDescripcion.getText().trim(),
                         fechaHora,
                         campoUbicacion.getText().trim());
-                gestorEventos.registrarEvento(nuevo);
+                controladorEventos.registrarEvento(nuevo);
             } else {
                 seleccionado.setNombre(campoNombre.getText().trim());
                 seleccionado.setDescripcion(campoDescripcion.getText().trim());
                 seleccionado.setFechaHora(fechaHora);
                 seleccionado.setUbicacion(campoUbicacion.getText().trim());
-                gestorEventos.actualizarEvento(seleccionado);
+                controladorEventos.actualizarEvento(seleccionado);
             }
             cargarEventos();
             limpiarFormulario();
@@ -295,7 +295,7 @@ public class AplicacionEventos extends JFrame {
                 campoCorreoAsistente.getText().trim(),
                 checkConfirmado.isSelected(),
                 "");
-        gestorEventos.registrarAsistente(seleccionado.getId(), asistente);
+        controladorEventos.registrarAsistente(seleccionado.getId(), asistente);
         cargarEventos();
         campoNombreAsistente.setText("");
         campoCorreoAsistente.setText("");
@@ -317,7 +317,7 @@ public class AplicacionEventos extends JFrame {
                 campoTipoRecurso.getText().trim(),
                 campoDescripcionRecurso.getText().trim(),
                 cantidad);
-        gestorEventos.asignarRecurso(seleccionado.getId(), recurso);
+        controladorEventos.asignarRecurso(seleccionado.getId(), recurso);
         cargarEventos();
         campoTipoRecurso.setText("");
         campoDescripcionRecurso.setText("");
@@ -333,7 +333,7 @@ public class AplicacionEventos extends JFrame {
             }
         }
 
-        Map<LocalDate, List<Evento>> calendario = gestorEventos.calendarioPorDia();
+        Map<LocalDate, List<Evento>> calendario = controladorEventos.calendarioPorDia();
         LocalDate fechaCursor = mesVisible;
         int diasMes = mesVisible.lengthOfMonth();
         DayOfWeek primerDiaSemana = mesVisible.getDayOfWeek();
@@ -360,14 +360,14 @@ public class AplicacionEventos extends JFrame {
     }
 
     private void mostrarInforme() {
-        String informe = gestorEventos.generarInformeParticipacion();
+        String informe = controladorEventos.generarInformeParticipacion();
         JTextArea area = new JTextArea(informe, 20, 40);
         area.setEditable(false);
         JOptionPane.showMessageDialog(this, new JScrollPane(area), "Informe", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void iniciarNotificador() {
-        Notificador notificador = new Notificador(gestorEventos,
+        NotificadorEventos notificador = new NotificadorEventos(controladorEventos,
                 Path.of("data", "notificaciones.txt"),
                 5000); // cada 5 segundos
         hiloNotificador = new Thread(notificador);
@@ -376,6 +376,6 @@ public class AplicacionEventos extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AplicacionEventos().setVisible(true));
+        SwingUtilities.invokeLater(() -> new VentanaEventos().setVisible(true));
     }
 }

@@ -1,4 +1,4 @@
-package eventos.servicio;
+package eventos.controlador;
 
 import eventos.modelo.Evento;
 
@@ -11,18 +11,17 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Tarea en segundo plano que revisa cada cierto tiempo los eventos próximos y
- * registra recordatorios simples en un archivo de texto.
+ * Hilo liviano que consulta eventos próximos y registra recordatorios en un archivo de texto.
  */
-public class Notificador implements Runnable {
+public class NotificadorEventos implements Runnable {
 
-    private final GestorEventos gestorEventos;
+    private final ControladorEventos controladorEventos;
     private final Path bitacoraNotificaciones;
     private final long intervaloMilisegundos;
     private final AtomicBoolean activo = new AtomicBoolean(true);
 
-    public Notificador(GestorEventos gestorEventos, Path bitacoraNotificaciones, long intervaloMilisegundos) {
-        this.gestorEventos = gestorEventos;
+    public NotificadorEventos(ControladorEventos controladorEventos, Path bitacoraNotificaciones, long intervaloMilisegundos) {
+        this.controladorEventos = controladorEventos;
         this.bitacoraNotificaciones = bitacoraNotificaciones;
         this.intervaloMilisegundos = intervaloMilisegundos;
     }
@@ -54,7 +53,7 @@ public class Notificador implements Runnable {
     }
 
     private void revisarEventos() {
-        List<Evento> proximos = gestorEventos.eventosProximos();
+        List<Evento> proximos = controladorEventos.eventosProximos();
         LocalDateTime ahora = LocalDateTime.now();
         for (Evento evento : proximos) {
             long horasFaltantes = Duration.between(ahora, evento.getFechaHora()).toHours();
