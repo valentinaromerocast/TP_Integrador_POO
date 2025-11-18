@@ -15,28 +15,8 @@ src/
          └─ VentanaEventos.java // interfaz Swing, calendario y formularios
 data/
  └─ eventos.txt         // base en texto (puede quedar vacía)
-```
-
-## Funcionalidad destacada
-
-- Registro, edición y visualización de eventos (lista y detalle).
-- Formularios para asistentes y recursos asociados a cada evento.
-- Calendario mensual gráfico basado en `Map<LocalDate, List<Evento>>`.
-- Persistencia total en archivos de texto, sin bases de datos ni librerías externas.
-
-## Requisitos previos
-
-- Java 17+ (se usan API estándar: `java.time`, `java.nio.file`, Swing).
-
-## Cómo compilar y ejecutar
-
-```bash
-cd /workspace
-javac -d out $(find src -name '*.java')
-java -cp out eventos.vista.VentanaEventos
-```
-
-Al primer inicio se creará automáticamente `data/eventos.txt` si no existe.
-
-## Archivo de datos
-
+Funcionalidad destacada
+Registro, edición y visualización de eventos (lista y detalle).
+Formularios para asistentes y recursos asociados a cada evento.
+Calendario mensual gráfico basado en Map<LocalDate, List<Evento>>.
+Persistencia total en archivos de texto, sin bases de datos ni librerías externas.
