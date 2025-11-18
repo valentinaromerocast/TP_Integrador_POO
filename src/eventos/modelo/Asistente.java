@@ -1,14 +1,10 @@
 package eventos.modelo;
 
-import java.util.Objects;
-
 /**
  * Representa a una persona registrada para asistir a un evento.
  */
-public class Asistente {
+public class Asistente extends Persona {
 
-    private final String nombre;
-    private final String correoElectronico;
     private boolean confirmoAsistencia;
     private String retroalimentacion;
 
@@ -17,18 +13,9 @@ public class Asistente {
     }
 
     public Asistente(String nombre, String correoElectronico, boolean confirmoAsistencia, String retroalimentacion) {
-        this.nombre = Objects.requireNonNull(nombre, "El nombre no puede ser nulo");
-        this.correoElectronico = Objects.requireNonNull(correoElectronico, "El correo no puede ser nulo");
+        super(nombre, correoElectronico);
         this.confirmoAsistencia = confirmoAsistencia;
         this.retroalimentacion = retroalimentacion == null ? "" : retroalimentacion;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getCorreoElectronico() {
-        return correoElectronico;
     }
 
     public boolean confirmoAsistencia() {
@@ -49,8 +36,8 @@ public class Asistente {
 
     public String aToken() {
         return String.join("^",
-                escapar(nombre),
-                escapar(correoElectronico),
+                escapar(getNombre()),
+                escapar(getCorreoElectronico()),
                 Boolean.toString(confirmoAsistencia),
                 escapar(retroalimentacion));
     }
@@ -77,6 +64,15 @@ public class Asistente {
 
     @Override
     public String toString() {
-        return nombre + " (" + correoElectronico + ")" + (confirmoAsistencia ? " - Confirmado" : "");
+        return descripcionDetallada();
+    }
+
+    @Override
+    public String descripcionDetallada() {
+        String estado = confirmoAsistencia ? "Confirmado" : "Pendiente";
+        if (retroalimentacion.isBlank()) {
+            return descripcionBasica() + " - " + estado;
+        }
+        return descripcionBasica() + " - " + estado + " - Feedback: " + retroalimentacion;
     }
 }

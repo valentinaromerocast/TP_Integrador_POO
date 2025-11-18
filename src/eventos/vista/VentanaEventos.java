@@ -1,9 +1,12 @@
 package eventos.vista;
 
 import eventos.modelo.Asistente;
+import eventos.modelo.DescripcionDetallable;
 import eventos.modelo.Evento;
 import eventos.modelo.Recurso;
 import eventos.controlador.ControladorEventos;
+import eventos.persistencia.RepositorioEventos;
+import eventos.persistencia.RepositorioEventosArchivo;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +53,8 @@ public class VentanaEventos extends JFrame {
 
     public VentanaEventos() {
         super("Planificador de eventos");
-        this.controladorEventos = new ControladorEventos(Path.of("data", "eventos.txt"));
+        RepositorioEventos repositorioEventos = new RepositorioEventosArchivo(Path.of("data", "eventos.txt"));
+        this.controladorEventos = new ControladorEventos(repositorioEventos);
         this.modeloEventos = new DefaultListModel<>();
         this.listaEventos = new JList<>(modeloEventos);
         this.areaDetalle = new JTextArea(12, 30);
@@ -346,15 +351,10 @@ public class VentanaEventos extends JFrame {
         builder.append("Nombre: ").append(seleccionado.getNombre()).append("\n")
                 .append("Descripción: ").append(seleccionado.getDescripcion()).append("\n")
                 .append("Fecha y hora: ").append(seleccionado.getFechaHora().format(Evento.FORMATO)).append("\n")
-                .append("Ubicación: ").append(seleccionado.getUbicacion()).append("\n\n")
-                .append("Asistentes:\n");
-        for (Asistente asistente : seleccionado.getAsistentes()) {
-            builder.append(" - ").append(asistente.toString()).append("\n");
-        }
-        builder.append("\nRecursos:\n");
-        for (Recurso recurso : seleccionado.getRecursos()) {
-            builder.append(" - ").append(recurso.toString()).append("\n");
-        }
+                .append("Ubicación: ").append(seleccionado.getUbicacion()).append("\n\n");
+        anexarColeccion(builder, "Asistentes", seleccionado.getAsistentes());
+        builder.append("\n");
+        anexarColeccion(builder, "Recursos", seleccionado.getRecursos());
         areaDetalle.setText(builder.toString());
 
         campoNombre.setText(seleccionado.getNombre());
@@ -373,16 +373,24 @@ public class VentanaEventos extends JFrame {
         builder.append("Nombre: ").append(campoNombre.getText().trim()).append("\n")
                 .append("Descripción: ").append(campoDescripcion.getText().trim()).append("\n")
                 .append("Fecha: ").append(campoFecha.getText().trim()).append(" ").append(campoHora.getText().trim()).append("\n")
-                .append("Ubicación: ").append(campoUbicacion.getText().trim()).append("\n\n")
-                .append("Asistentes cargados (").append(asistentesPendientes.size()).append("):\n");
-        for (Asistente asistente : asistentesPendientes) {
-            builder.append(" - ").append(asistente.toString()).append("\n");
-        }
-        builder.append("\nRecursos cargados (").append(recursosPendientes.size()).append("):\n");
-        for (Recurso recurso : recursosPendientes) {
-            builder.append(" - ").append(recurso.toString()).append("\n");
-        }
+                .append("Ubicación: ").append(campoUbicacion.getText().trim()).append("\n\n");
+        anexarColeccion(builder, "Asistentes cargados (" + asistentesPendientes.size() + ")", asistentesPendientes);
+        builder.append("\n");
+        anexarColeccion(builder, "Recursos cargados (" + recursosPendientes.size() + ")", recursosPendientes);
         areaDetalle.setText(builder.toString());
+    }
+
+    private void anexarColeccion(StringBuilder builder,
+                                 String titulo,
+                                 Collection<? extends DescripcionDetallable> elementos) {
+        builder.append(titulo).append(":\n");
+        if (elementos.isEmpty()) {
+            builder.append(" - (sin registros)\n");
+            return;
+        }
+        for (DescripcionDetallable elemento : elementos) {
+            builder.append(" - ").append(elemento.descripcionDetallada()).append("\n");
+        }
     }
 
     private void eliminarEventoSeleccionado() {
