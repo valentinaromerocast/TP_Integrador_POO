@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Entidad principal que concentra la información de cada evento.
  */
-public class Evento implements DescripcionDetallable {
+public class Evento {
 
     public static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -164,11 +164,6 @@ public class Evento implements DescripcionDetallable {
 
     @Override
     public String toString() {
-        return descripcionDetallada();
-    }
-
-    @Override
-    public String descripcionDetallada() {
         return nombre + " - " + fechaHora.format(FORMATO) + " - " + ubicacion;
     }
 }

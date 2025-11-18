@@ -1,10 +1,14 @@
 package eventos.modelo;
 
+import java.util.Objects;
+
 /**
  * Representa a una persona registrada para asistir a un evento.
  */
-public class Asistente extends Persona {
+public class Asistente {
 
+    private final String nombre;
+    private final String correoElectronico;
     private boolean confirmoAsistencia;
     private String retroalimentacion;
 
@@ -13,9 +17,18 @@ public class Asistente extends Persona {
     }
 
     public Asistente(String nombre, String correoElectronico, boolean confirmoAsistencia, String retroalimentacion) {
-        super(nombre, correoElectronico);
+        this.nombre = Objects.requireNonNull(nombre, "El nombre no puede ser nulo");
+        this.correoElectronico = Objects.requireNonNull(correoElectronico, "El correo no puede ser nulo");
         this.confirmoAsistencia = confirmoAsistencia;
         this.retroalimentacion = retroalimentacion == null ? "" : retroalimentacion;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getCorreoElectronico() {
+        return correoElectronico;
     }
 
     public boolean confirmoAsistencia() {
@@ -36,8 +49,8 @@ public class Asistente extends Persona {
 
     public String aToken() {
         return String.join("^",
-                escapar(getNombre()),
-                escapar(getCorreoElectronico()),
+                escapar(nombre),
+                escapar(correoElectronico),
                 Boolean.toString(confirmoAsistencia),
                 escapar(retroalimentacion));
     }
@@ -64,15 +77,6 @@ public class Asistente extends Persona {
 
     @Override
     public String toString() {
-        return descripcionDetallada();
-    }
-
-    @Override
-    public String descripcionDetallada() {
-        String estado = confirmoAsistencia ? "Confirmado" : "Pendiente";
-        if (retroalimentacion.isBlank()) {
-            return descripcionBasica() + " - " + estado;
-        }
-        return descripcionBasica() + " - " + estado + " - Feedback: " + retroalimentacion;
+        return nombre + " (" + correoElectronico + ")" + (confirmoAsistencia ? " - Confirmado" : "");
     }
 }
