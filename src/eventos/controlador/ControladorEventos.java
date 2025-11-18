@@ -3,10 +3,8 @@ package eventos.controlador;
 import eventos.modelo.Asistente;
 import eventos.modelo.Evento;
 import eventos.modelo.Recurso;
+import eventos.persistencia.RepositorioEventos;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,15 +16,15 @@ import java.util.stream.Collectors;
 
 /**
  * Actúa como Controlador en la arquitectura MVC aplicando los principios GRASP/SOLID.
- * Contiene la lógica de negocio y la persistencia en archivos de texto.
+ * Contiene la lógica de negocio y delega la persistencia a un repositorio.
  */
 public class ControladorEventos {
 
-    private final Path archivoDatos;
+    private final RepositorioEventos repositorioEventos;
     private final List<Evento> eventos;
 
-    public ControladorEventos(Path archivoDatos) {
-        this.archivoDatos = archivoDatos;
+    public ControladorEventos(RepositorioEventos repositorioEventos) {
+        this.repositorioEventos = repositorioEventos;
         this.eventos = new ArrayList<>();
         cargar();
     }
@@ -93,29 +91,11 @@ public class ControladorEventos {
     }
 
     private void cargar() {
-        try {
-            if (!Files.exists(archivoDatos)) {
-                Files.createDirectories(archivoDatos.getParent());
-                Files.createFile(archivoDatos);
-                return;
-            }
-            Files.lines(archivoDatos)
-                    .filter(linea -> !linea.isBlank())
-                    .map(Evento::desdeLinea)
-                    .forEach(eventos::add);
-        } catch (IOException e) {
-            throw new IllegalStateException("No se pudo cargar el archivo de eventos", e);
-        }
+        eventos.clear();
+        eventos.addAll(repositorioEventos.cargar());
     }
 
     private void guardar() {
-        try {
-            List<String> lineas = eventos.stream()
-                    .map(Evento::aLinea)
-                    .toList();
-            Files.write(archivoDatos, lineas);
-        } catch (IOException e) {
-            throw new IllegalStateException("No se pudo guardar el archivo de eventos", e);
-        }
+        repositorioEventos.guardar(eventos);
     }
 }

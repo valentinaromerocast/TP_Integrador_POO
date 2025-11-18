@@ -1,0 +1,9 @@
+src/eventos/modelo/Evento.java
+src/eventos/modelo/Asistente.java
+src/eventos/modelo/DescripcionDetallable.java
+src/eventos/modelo/Persona.java
+src/eventos/modelo/Recurso.java
+src/eventos/vista/VentanaEventos.java
+src/eventos/persistencia/RepositorioEventosArchivo.java
+src/eventos/persistencia/RepositorioEventos.java
+src/eventos/controlador/ControladorEventos.java

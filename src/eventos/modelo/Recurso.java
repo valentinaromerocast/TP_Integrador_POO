@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Representa un recurso necesario para un evento (salón, equipo, catering, etc.).
  */
-public class Recurso {
+public class Recurso implements DescripcionDetallable {
 
     private final String tipo;
     private final String descripcion;
@@ -43,6 +43,11 @@ public class Recurso {
 
     @Override
     public String toString() {
+        return descripcionDetallada();
+    }
+
+    @Override
+    public String descripcionDetallada() {
         return tipo + " - " + descripcion + " (x" + cantidad + ")";
     }
 

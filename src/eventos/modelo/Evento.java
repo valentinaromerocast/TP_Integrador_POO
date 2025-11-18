@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Entidad principal que concentra la información de cada evento.
  */
-public class Evento {
+public class Evento implements DescripcionDetallable {
 
     public static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -37,13 +39,13 @@ public class Evento {
                   String ubicacion,
                   List<Asistente> asistentes,
                   Set<Recurso> recursos) {
-        this.id = id;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.fechaHora = fechaHora;
-        this.ubicacion = ubicacion;
-        this.asistentes = asistentes;
-        this.recursos = recursos;
+        this.id = Objects.requireNonNull(id, "El identificador es obligatorio");
+        this.nombre = Objects.requireNonNull(nombre, "El nombre es obligatorio");
+        this.descripcion = descripcion == null ? "" : descripcion;
+        this.fechaHora = Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        this.ubicacion = Objects.requireNonNull(ubicacion, "La ubicación es obligatoria");
+        this.asistentes = new ArrayList<>(Objects.requireNonNullElseGet(asistentes, ArrayList::new));
+        this.recursos = new LinkedHashSet<>(Objects.requireNonNullElseGet(recursos, LinkedHashSet::new));
     }
 
     public String getId() {
@@ -83,19 +85,19 @@ public class Evento {
     }
 
     public List<Asistente> getAsistentes() {
-        return asistentes;
+        return Collections.unmodifiableList(asistentes);
     }
 
     public Set<Recurso> getRecursos() {
-        return recursos;
+        return Collections.unmodifiableSet(recursos);
     }
 
     public void agregarAsistente(Asistente asistente) {
-        asistentes.add(asistente);
+        asistentes.add(Objects.requireNonNull(asistente, "El asistente es obligatorio"));
     }
 
     public void agregarRecurso(Recurso recurso) {
-        recursos.add(recurso);
+        recursos.add(Objects.requireNonNull(recurso, "El recurso es obligatorio"));
     }
 
     public LocalDate obtenerDia() {
@@ -162,6 +164,11 @@ public class Evento {
 
     @Override
     public String toString() {
+        return descripcionDetallada();
+    }
+
+    @Override
+    public String descripcionDetallada() {
         return nombre + " - " + fechaHora.format(FORMATO) + " - " + ubicacion;
     }
 }
