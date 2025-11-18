@@ -111,6 +111,11 @@ public class VentanaEventos extends JFrame {
         btnLimpiar.addActionListener(e -> limpiarFormulario());
         formulario.add(btnLimpiar);
 
+        JButton btnAgregarEliminar = new JButton("Agregar o eliminar evento");
+        btnAgregarEliminar.addActionListener(e -> mostrarDialogoAgregarEliminarEvento());
+        formulario.add(btnAgregarEliminar);
+        formulario.add(new JLabel());
+
         panel.add(formulario, BorderLayout.NORTH);
 
         areaDetalle.setEditable(false);
@@ -315,6 +320,45 @@ public class VentanaEventos extends JFrame {
         campoTipoRecurso.setText("");
         campoDescripcionRecurso.setText("");
         spinnerCantidadRecurso.setValue(1);
+    }
+
+    private void mostrarDialogoAgregarEliminarEvento() {
+        Object[] opciones = {"Agregar", "Eliminar", "Cancelar"};
+        int seleccion = JOptionPane.showOptionDialog(
+                this,
+                "¿Qué acción desea realizar?",
+                "Agregar o eliminar evento",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
+        if (seleccion == 0) {
+            listaEventos.clearSelection();
+            guardarEvento();
+        } else if (seleccion == 1) {
+            eliminarEventoSeleccionado();
+        }
+    }
+
+    private void eliminarEventoSeleccionado() {
+        Evento seleccionado = listaEventos.getSelectedValue();
+        if (seleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione un evento para eliminarlo");
+            return;
+        }
+        int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de eliminar el evento \"" + seleccionado.getNombre() + "\"?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            controladorEventos.eliminarEvento(seleccionado.getId());
+            cargarEventos();
+            limpiarFormulario();
+        }
     }
 
     private void actualizarCalendario() {
