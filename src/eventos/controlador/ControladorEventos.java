@@ -78,6 +78,14 @@ public class ControladorEventos {
         guardar();
     }
 
+    public void eliminarEvento(String idEvento) {
+        boolean eliminado = eventos.removeIf(evento -> evento.getId().equals(idEvento));
+        if (!eliminado) {
+            throw new IllegalArgumentException("Evento inexistente");
+        }
+        guardar();
+    }
+
     public Optional<Evento> buscarPorId(String id) {
         return eventos.stream()
                 .filter(e -> e.getId().equals(id))
