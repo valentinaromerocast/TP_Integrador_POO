@@ -15,8 +15,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Vista Swing que materializa la capa de presentación del MVC.
@@ -41,6 +44,8 @@ public class VentanaEventos extends JFrame {
     private final JTable tablaCalendario;
     private final JLabel etiquetaMesCalendario;
     private LocalDate mesVisible;
+    private final List<Asistente> asistentesPendientes;
+    private final Set<Recurso> recursosPendientes;
 
     public VentanaEventos() {
         super("Planificador de eventos");
@@ -62,6 +67,8 @@ public class VentanaEventos extends JFrame {
         this.tablaCalendario = new JTable(new DefaultTableModel(6, 7));
         this.etiquetaMesCalendario = new JLabel();
         this.mesVisible = LocalDate.now().withDayOfMonth(1);
+        this.asistentesPendientes = new ArrayList<>();
+        this.recursosPendientes = new LinkedHashSet<>();
 
         construirVentana();
         cargarEventos();
@@ -207,29 +214,12 @@ public class VentanaEventos extends JFrame {
         }
         Evento seleccionado = listaEventos.getSelectedValue();
         if (seleccionado == null) {
-            areaDetalle.setText("");
+            mostrarDetalleNuevoEvento();
             return;
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append("Nombre: ").append(seleccionado.getNombre()).append("\n")
-                .append("Descripción: ").append(seleccionado.getDescripcion()).append("\n")
-                .append("Fecha y hora: ").append(seleccionado.getFechaHora().format(Evento.FORMATO)).append("\n")
-                .append("Ubicación: ").append(seleccionado.getUbicacion()).append("\n\n")
-                .append("Asistentes:\n");
-        for (Asistente asistente : seleccionado.getAsistentes()) {
-            builder.append(" - ").append(asistente.toString()).append("\n");
-        }
-        builder.append("\nRecursos:\n");
-        for (Recurso recurso : seleccionado.getRecursos()) {
-            builder.append(" - ").append(recurso.toString()).append("\n");
-        }
-        areaDetalle.setText(builder.toString());
-
-        campoNombre.setText(seleccionado.getNombre());
-        campoDescripcion.setText(seleccionado.getDescripcion());
-        campoFecha.setText(seleccionado.getFechaHora().toLocalDate().toString());
-        campoHora.setText(seleccionado.getFechaHora().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-        campoUbicacion.setText(seleccionado.getUbicacion());
+        asistentesPendientes.clear();
+        recursosPendientes.clear();
+        mostrarDetalleEventoExistente(seleccionado);
     }
 
     private void guardarEvento() {
@@ -251,7 +241,11 @@ public class VentanaEventos extends JFrame {
                         campoDescripcion.getText().trim(),
                         fechaHora,
                         campoUbicacion.getText().trim());
+                asistentesPendientes.forEach(nuevo::agregarAsistente);
+                recursosPendientes.forEach(nuevo::agregarRecurso);
                 controladorEventos.registrarEvento(nuevo);
+                asistentesPendientes.clear();
+                recursosPendientes.clear();
             } else {
                 seleccionado.setNombre(campoNombre.getText().trim());
                 seleccionado.setDescripcion(campoDescripcion.getText().trim());
@@ -275,15 +269,13 @@ public class VentanaEventos extends JFrame {
         campoFecha.setText("2025-01-01");
         campoHora.setText("10:00");
         campoUbicacion.setText("");
+        asistentesPendientes.clear();
+        recursosPendientes.clear();
         listaEventos.clearSelection();
+        mostrarDetalleNuevoEvento();
     }
 
     private void agregarAsistente() {
-        Evento seleccionado = listaEventos.getSelectedValue();
-        if (seleccionado == null) {
-            JOptionPane.showMessageDialog(this, "Seleccione un evento primero");
-            return;
-        }
         if (campoNombreAsistente.getText().isBlank() || campoCorreoAsistente.getText().isBlank()) {
             JOptionPane.showMessageDialog(this, "Complete nombre y correo del asistente");
             return;
@@ -293,19 +285,20 @@ public class VentanaEventos extends JFrame {
                 campoCorreoAsistente.getText().trim(),
                 checkConfirmado.isSelected(),
                 "");
-        controladorEventos.registrarAsistente(seleccionado.getId(), asistente);
-        cargarEventos();
+        Evento seleccionado = listaEventos.getSelectedValue();
+        if (seleccionado == null) {
+            asistentesPendientes.add(asistente);
+            mostrarDetalleNuevoEvento();
+        } else {
+            controladorEventos.registrarAsistente(seleccionado.getId(), asistente);
+            cargarEventos();
+        }
         campoNombreAsistente.setText("");
         campoCorreoAsistente.setText("");
         checkConfirmado.setSelected(false);
     }
 
     private void agregarRecurso() {
-        Evento seleccionado = listaEventos.getSelectedValue();
-        if (seleccionado == null) {
-            JOptionPane.showMessageDialog(this, "Seleccione un evento primero");
-            return;
-        }
         if (campoTipoRecurso.getText().isBlank()) {
             JOptionPane.showMessageDialog(this, "El tipo de recurso es obligatorio");
             return;
@@ -315,8 +308,14 @@ public class VentanaEventos extends JFrame {
                 campoTipoRecurso.getText().trim(),
                 campoDescripcionRecurso.getText().trim(),
                 cantidad);
-        controladorEventos.asignarRecurso(seleccionado.getId(), recurso);
-        cargarEventos();
+        Evento seleccionado = listaEventos.getSelectedValue();
+        if (seleccionado == null) {
+            recursosPendientes.add(recurso);
+            mostrarDetalleNuevoEvento();
+        } else {
+            controladorEventos.asignarRecurso(seleccionado.getId(), recurso);
+            cargarEventos();
+        }
         campoTipoRecurso.setText("");
         campoDescripcionRecurso.setText("");
         spinnerCantidadRecurso.setValue(1);
@@ -340,6 +339,50 @@ public class VentanaEventos extends JFrame {
         } else if (seleccion == 1) {
             eliminarEventoSeleccionado();
         }
+    }
+
+    private void mostrarDetalleEventoExistente(Evento seleccionado) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Nombre: ").append(seleccionado.getNombre()).append("\n")
+                .append("Descripción: ").append(seleccionado.getDescripcion()).append("\n")
+                .append("Fecha y hora: ").append(seleccionado.getFechaHora().format(Evento.FORMATO)).append("\n")
+                .append("Ubicación: ").append(seleccionado.getUbicacion()).append("\n\n")
+                .append("Asistentes:\n");
+        for (Asistente asistente : seleccionado.getAsistentes()) {
+            builder.append(" - ").append(asistente.toString()).append("\n");
+        }
+        builder.append("\nRecursos:\n");
+        for (Recurso recurso : seleccionado.getRecursos()) {
+            builder.append(" - ").append(recurso.toString()).append("\n");
+        }
+        areaDetalle.setText(builder.toString());
+
+        campoNombre.setText(seleccionado.getNombre());
+        campoDescripcion.setText(seleccionado.getDescripcion());
+        campoFecha.setText(seleccionado.getFechaHora().toLocalDate().toString());
+        campoHora.setText(seleccionado.getFechaHora().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+        campoUbicacion.setText(seleccionado.getUbicacion());
+    }
+
+    private void mostrarDetalleNuevoEvento() {
+        if (asistentesPendientes.isEmpty() && recursosPendientes.isEmpty()) {
+            areaDetalle.setText("Sin evento seleccionado. Complete el formulario para crear uno nuevo y puede ir agregando asistentes y recursos antes de guardarlo.");
+            return;
+        }
+        StringBuilder builder = new StringBuilder("Nuevo evento en edición\n");
+        builder.append("Nombre: ").append(campoNombre.getText().trim()).append("\n")
+                .append("Descripción: ").append(campoDescripcion.getText().trim()).append("\n")
+                .append("Fecha: ").append(campoFecha.getText().trim()).append(" ").append(campoHora.getText().trim()).append("\n")
+                .append("Ubicación: ").append(campoUbicacion.getText().trim()).append("\n\n")
+                .append("Asistentes cargados (").append(asistentesPendientes.size()).append("):\n");
+        for (Asistente asistente : asistentesPendientes) {
+            builder.append(" - ").append(asistente.toString()).append("\n");
+        }
+        builder.append("\nRecursos cargados (").append(recursosPendientes.size()).append("):\n");
+        for (Recurso recurso : recursosPendientes) {
+            builder.append(" - ").append(recurso.toString()).append("\n");
+        }
+        areaDetalle.setText(builder.toString());
     }
 
     private void eliminarEventoSeleccionado() {
