@@ -335,8 +335,8 @@ public class VentanaEventos extends JFrame {
                 opciones[0]);
 
         if (seleccion == 0) {
-            listaEventos.clearSelection();
-            guardarEvento();
+            limpiarFormulario();
+            campoNombre.requestFocusInWindow();
         } else if (seleccion == 1) {
             eliminarEventoSeleccionado();
         }
